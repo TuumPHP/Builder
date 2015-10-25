@@ -1,5 +1,5 @@
 <?php
-use WScore\Site\Builder\AppBuilder;
+use WScore\Builder\AppBuilder;
 
 /**
  * @var AppBuilder $builder

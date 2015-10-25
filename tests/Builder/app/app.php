@@ -1,6 +1,6 @@
 <?php
 
-use WScore\Site\Builder\AppBuilder;
+use WScore\Builder\AppBuilder;
 
 require_once dirname(dirname(__DIR__)) . '/autoloader.php';
 
