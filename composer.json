@@ -1,6 +1,6 @@
 {
-    "name": "wscore/builder",
-    "description": "a generic application builder based on environment value.",
+    "name": "tuum/builder",
+    "description": "a generic builder for PHP application based on environment.",
     "license": "MIT",
     "authors": [
         {
@@ -13,7 +13,7 @@
     },
     "autoload": {
         "psr-4": {
-            "WScore\\Builder\\": "src/"
+            "Tuum\\Builder\\": "src/"
         }
     }
 

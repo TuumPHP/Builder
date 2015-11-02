@@ -1,5 +1,5 @@
 <?php
-namespace WScore\Builder;
+namespace Tuum\Builder;
 
 /**
  * Class AppCached
