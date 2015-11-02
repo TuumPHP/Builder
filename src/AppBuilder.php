@@ -73,26 +73,23 @@ class AppBuilder
     }
 
     /**
-     * read multiple configuration files at $this->config_dir/$file.
+     * read multiple configuration files at $this->app_dir/$file.
      *
-     * this reads multiple configuration files under $config_dir.
-     * if $dir = mail/mail, configuration files are,
-     *   - mail/mail.php
-     *   - mail/mail-debug.php
-     *   - mail/mail-{$environment}.php
+     * this reads multiple configuration files under $app_dir.
+     * if $app_dir = config and $config = mail, the files are,
+     *   - config/mail.php
+     *   - config/{$environment}/mail.php
+     * 
+     * always read the main config file (i.e. without environment), 
+     * then the environment specific configuration file. 
      *
      * @param string $config
-     * @param bool   $envOnly
      * @return $this
      */
-    public function configure($config, $envOnly = false)
+    public function configAll($config)
     {
-        if ($envOnly) {
-            $env_list = $this->environments;
-        } else {
-            $env_list = $this->debug ? ['', 'debug'] : [''];
-            $env_list = array_merge($env_list, $this->environments);
-        }
+        $env_list = array_merge([''], $this->environments);
+        $env_list = array_unique($env_list);
         $directory = $this->app_dir . DIRECTORY_SEPARATOR;
         foreach ($env_list as $env) {
             $file = ($env ? $env . '/' : '') . $config;
@@ -103,7 +100,34 @@ class AppBuilder
     }
 
     /**
-     * evaluate PHP file at {$__config}.php and returns the value.
+     * read only one configuration file at $this->app_dir/$file.
+     *
+     * this reads only one configuration files under $app_dir.
+     * if $app_dir = config and $config = mail, searches for,
+     *   - config/mail.php
+     *   - config/{$environment}/mail.php
+     * 
+     * and reads the first configuration file found. 
+     * 
+     * @param string $config
+     * @return $this
+     */
+    public function configure($config)
+    {
+        $directory = $this->app_dir . DIRECTORY_SEPARATOR;
+        foreach ($this->environments as $env) {
+            $file = ($env ? $env . '/' : '') . $config;
+            if (!is_null($this->evaluate($directory . $file))) {
+                return $this;
+            }
+        }
+
+        return $this;
+    }
+    
+    /**
+     * evaluate PHP file ($__file.php) and returns the value.
+     * the file path must be an absolute path. 
      *
      * @param string $__file
      * @return mixed|null
