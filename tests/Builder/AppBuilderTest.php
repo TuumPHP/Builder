@@ -1,7 +1,7 @@
 <?php
 namespace tests\Builder;
 
-use WScore\Builder\AppBuilder;
+use Tuum\Builder\AppBuilder;
 
 require_once(dirname(__DIR__) . '/autoloader.php');
 
@@ -30,7 +30,7 @@ class AppBuilderTest extends \PHPUnit_Framework_TestCase
     function forge_construct_builder()
     {
         $builder = AppBuilder::forge('dir1', 'dir2');
-        $this->assertEquals('WScore\Builder\AppBuilder', get_class($builder));
+        $this->assertEquals('Tuum\Builder\AppBuilder', get_class($builder));
         $this->assertEquals('dir1', $builder->app_dir);
         $this->assertEquals('dir2', $builder->var_dir);
     }
@@ -81,10 +81,10 @@ class AppBuilderTest extends \PHPUnit_Framework_TestCase
         $builder = AppBuilder::forge(__DIR__ . '/app')
             ->setup(function (AppBuilder $builder) {
                 $builder->loadEnvironment($builder->var_dir . '/env-local-tests');
-                $builder->configure('config/test');
-                $builder->configure('config/only', true);
+                $builder->configAll('config/test');
+                $builder->configure('config/only');
             });
-        $builder->configure('Application/routes');
+        $builder->configAll('Application/routes');
 
         $this->assertEquals('tested', $builder->get('test'));
         $this->assertEquals('tested', $builder->get('test-local'));
@@ -103,10 +103,10 @@ class AppBuilderTest extends \PHPUnit_Framework_TestCase
         $builder = AppBuilder::forge(__DIR__ . '/app')
             ->setup(function (AppBuilder $builder) {
                 $builder->loadEnvironment($builder->var_dir . '/environments');
-                $builder->configure('config/test');
-                $builder->configure('config/only', true);
+                $builder->configAll('config/test');
+                $builder->configure('config/only');
             });
-        $builder->configure('Application/routes');
+        $builder->configAll('Application/routes');
 
         $this->assertEquals('tested', $builder->get('test'));
         $this->assertEquals(null, $builder->get('test-local'));

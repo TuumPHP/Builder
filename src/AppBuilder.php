@@ -88,10 +88,8 @@ class AppBuilder
      */
     public function configAll($config)
     {
-        $env_list = array_merge([''], $this->environments);
-        $env_list = array_unique($env_list);
         $directory = $this->app_dir . DIRECTORY_SEPARATOR;
-        foreach ($env_list as $env) {
+        foreach ($this->listEnvForConf() as $env) {
             $file = ($env ? $env . '/' : '') . $config;
             $this->evaluate($directory . $file);
         }
@@ -100,9 +98,10 @@ class AppBuilder
     }
 
     /**
-     * read only one configuration file at $this->app_dir/$file.
+     * read only one configuration file for specified environment
+     * at $this->app_dir/$file. reads config for production if 
+     * no env-specific conf files are found.
      *
-     * this reads only one configuration files under $app_dir.
      * if $app_dir = config and $config = mail, searches for,
      *   - config/mail.php
      *   - config/{$environment}/mail.php
@@ -115,14 +114,25 @@ class AppBuilder
     public function configure($config)
     {
         $directory = $this->app_dir . DIRECTORY_SEPARATOR;
-        foreach ($this->environments as $env) {
+        $list_env  = array_reverse($this->listEnvForConf());
+        foreach ($list_env as $env) {
             $file = ($env ? $env . '/' : '') . $config;
-            if (!is_null($this->evaluate($directory . $file))) {
+            if ($this->evaluate($directory . $file) !== false) {
                 return $this;
             }
         }
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    private function listEnvForConf()
+    {
+        $list = array_merge([''], $this->environments);
+        $list = array_unique($list);
+        return $list;
     }
     
     /**
@@ -130,13 +140,13 @@ class AppBuilder
      * the file path must be an absolute path. 
      *
      * @param string $__file
-     * @return mixed|null
+     * @return mixed|bool
      */
     public function evaluate($__file)
     {
         $__file = $__file . '.php';
         if (!file_exists($__file)) {
-            return null;
+            return false;
         }
         /** @noinspection PhpUnusedLocalVariableInspection */
         $app = $this->app;
@@ -156,8 +166,11 @@ class AppBuilder
      */
     public function loadEnvironment($env_file)
     {
-        $environments = $this->evaluate($env_file);
-        if ($environments !== 1) {
+        $directory = $this->var_dir . DIRECTORY_SEPARATOR;
+        $environments = $this->evaluate($directory.'/'.$env_file);
+        if ($environments === 1 || $environments === null) {
+            $this->environments = [''];
+        } else {
             $this->environments = (array)$environments;
         }
 
@@ -197,5 +210,22 @@ class AppBuilder
     public function has($key)
     {
         return array_key_exists($key, $this->container);
+    }
+
+    /**
+     * @param string $env
+     * @return bool
+     */
+    public function isEnv($env)
+    {
+        return in_array($env, $this->environments);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isProduction()
+    {
+        return $this->isEnv('');
     }
 }
