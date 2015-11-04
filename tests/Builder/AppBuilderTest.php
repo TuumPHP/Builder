@@ -81,10 +81,10 @@ class AppBuilderTest extends \PHPUnit_Framework_TestCase
         $builder = AppBuilder::forge(__DIR__ . '/app')
             ->setup(function (AppBuilder $builder) {
                 $builder->loadEnvironment($builder->var_dir . '/env-local-tests');
-                $builder->configAll('config/test');
-                $builder->configure('config/only');
+                $builder->configure('config/test');
+                $builder->execConfig('config/only');
             });
-        $builder->configAll('Application/routes');
+        $builder->configure('Application/routes');
 
         $this->assertEquals('tested', $builder->get('test'));
         $this->assertEquals('tested', $builder->get('test-local'));
@@ -103,10 +103,10 @@ class AppBuilderTest extends \PHPUnit_Framework_TestCase
         $builder = AppBuilder::forge(__DIR__ . '/app')
             ->setup(function (AppBuilder $builder) {
                 $builder->loadEnvironment($builder->var_dir . '/environments');
-                $builder->configAll('config/test');
-                $builder->configure('config/only');
+                $builder->configure('config/test');
+                $builder->execConfig('config/only');
             });
-        $builder->configAll('Application/routes');
+        $builder->configure('Application/routes');
 
         $this->assertEquals('tested', $builder->get('test'));
         $this->assertEquals(null, $builder->get('test-local'));
@@ -124,7 +124,7 @@ class AppBuilderTest extends \PHPUnit_Framework_TestCase
     function evaluate_reads_and_returns_value()
     {
         $builder = AppBuilder::forge(__DIR__ . '/app');
-        $this->assertEquals('routed', $builder->evaluate($builder->app_dir.'/Application/routes'));
+        $this->assertEquals('routed', $builder->execute($builder->app_dir.'/Application/routes'));
         $this->assertEquals('tested', $builder->get('routes'));
     }
 }

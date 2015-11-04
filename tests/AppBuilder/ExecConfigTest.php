@@ -5,7 +5,7 @@ use Tuum\Builder\AppBuilder;
 
 require_once(dirname(__DIR__) . '/autoloader.php');
 
-class ConfigTest extends \PHPUnit_Framework_TestCase
+class ExecConfigTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var AppBuilder
@@ -47,7 +47,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
      */
     function set_production_env()
     {
-        $this->builder->configure('config');
+        $this->builder->execConfig('config');
         $this->assertEquals('tested', $this->builder->get('test-production'));
     }
 
@@ -57,7 +57,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     function set_local_production_env()
     {
         $this->builder->loadEnvironment('local');
-        $this->builder->configure('config');
+        $this->builder->execConfig('config');
         $this->assertEquals('tested', $this->builder->get('test-local'));
         $this->assertEquals(null, $this->builder->get('test-production'));
     }
@@ -65,10 +65,10 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    function configure_reads_config_file_for_production_if_no_other()
+    function execConfig_reads_config_file_for_production_if_no_other()
     {
         $this->builder->loadEnvironment('local');
-        $this->builder->configure('production');
+        $this->builder->execConfig('production');
         $this->assertEquals('done', $this->builder->get('production'));
     }
 }

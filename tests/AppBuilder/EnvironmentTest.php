@@ -24,8 +24,8 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     {
         $this->builder->loadEnvironment('local');
         $this->assertFalse($this->builder->isProduction());
-        $this->assertTrue($this->builder->isEnv('local'));
-        $this->assertFalse($this->builder->isEnv('bad'));
+        $this->assertTrue($this->builder->isEnvironment('local'));
+        $this->assertFalse($this->builder->isEnvironment('bad'));
     }
 
     /**
@@ -34,7 +34,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     function default_is_production_environment()
     {
         $this->assertTrue($this->builder->isProduction());
-        $this->assertFalse($this->builder->isEnv('local'));
+        $this->assertFalse($this->builder->isEnvironment('local'));
     }
     
     /**
@@ -44,7 +44,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     {
         $this->builder->loadEnvironment('production');
         $this->assertTrue($this->builder->isProduction());
-        $this->assertFalse($this->builder->isEnv('local'));
+        $this->assertFalse($this->builder->isEnvironment('local'));
     }
 
     /**
@@ -54,7 +54,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     {
         $this->builder->loadEnvironment('prod-return');
         $this->assertTrue($this->builder->isProduction());
-        $this->assertFalse($this->builder->isEnv('local'));
+        $this->assertFalse($this->builder->isEnvironment('local'));
     }
 
     /**
@@ -64,7 +64,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     {
         $this->builder->loadEnvironment('no-such-env-file');
         $this->assertTrue($this->builder->isProduction());
-        $this->assertFalse($this->builder->isEnv('local'));
+        $this->assertFalse($this->builder->isEnvironment('local'));
     }
 
     /**
@@ -74,8 +74,8 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     {
         $this->builder->loadEnvironment('two_env');
         $this->assertFalse($this->builder->isProduction());
-        $this->assertTrue($this->builder->isEnv('local'));
-        $this->assertTrue($this->builder->isEnv('test'));
-        $this->assertFalse($this->builder->isEnv('bad'));
+        $this->assertTrue($this->builder->isEnvironment('local'));
+        $this->assertTrue($this->builder->isEnvironment('test'));
+        $this->assertFalse($this->builder->isEnvironment('bad'));
     }
 }

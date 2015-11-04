@@ -38,7 +38,7 @@ class AppBuilder
     /**
      * @var array
      */
-    private $container = [];
+    private $settings = [];
 
     /**
      * @param string      $config_dir
@@ -83,15 +83,16 @@ class AppBuilder
      * always read the main config file (i.e. without environment), 
      * then the environment specific configuration file. 
      *
+     * @api
      * @param string $config
      * @return $this
      */
-    public function configAll($config)
+    public function configure($config)
     {
         $directory = $this->app_dir . DIRECTORY_SEPARATOR;
         foreach ($this->listEnvForConf() as $env) {
             $file = ($env ? $env . '/' : '') . $config;
-            $this->evaluate($directory . $file);
+            $this->execute($directory . $file);
         }
 
         return $this;
@@ -111,13 +112,13 @@ class AppBuilder
      * @param string $config
      * @return $this
      */
-    public function configure($config)
+    public function execConfig($config)
     {
         $directory = $this->app_dir . DIRECTORY_SEPARATOR;
         $list_env  = array_reverse($this->listEnvForConf());
         foreach ($list_env as $env) {
             $file = ($env ? $env . '/' : '') . $config;
-            if ($this->evaluate($directory . $file) !== false) {
+            if ($this->execute($directory . $file) !== false) {
                 return $this;
             }
         }
@@ -139,10 +140,11 @@ class AppBuilder
      * evaluate PHP file ($__file.php) and returns the value.
      * the file path must be an absolute path. 
      *
+     * @api
      * @param string $__file
      * @return mixed|bool
      */
-    public function evaluate($__file)
+    public function execute($__file)
     {
         $__file = $__file . '.php';
         if (!file_exists($__file)) {
@@ -161,13 +163,14 @@ class AppBuilder
     /**
      * loads the environment based configuration.
      *
+     * @api
      * @param string $env_file
      * @return $this
      */
     public function loadEnvironment($env_file)
     {
         $directory = $this->var_dir . DIRECTORY_SEPARATOR;
-        $environments = $this->evaluate($directory.'/'.$env_file);
+        $environments = $this->execute($directory.'/'.$env_file);
         if ($environments === 1 || $environments === null) {
             $this->environments = [''];
         } else {
@@ -180,13 +183,14 @@ class AppBuilder
     /**
      * sets $value as $key in local container.
      *
+     * @api
      * @param string $key
      * @param mixed  $value
      * @return $this
      */
     public function set($key, $value)
     {
-        $this->container[$key] = $value;
+        $this->settings[$key] = $value;
 
         return $this;
     }
@@ -194,38 +198,42 @@ class AppBuilder
     /**
      * gets $key from the local container.
      *
+     * @api
      * @param string     $key
      * @param null|mixed $default
      * @return mixed
      */
     public function get($key, $default = null)
     {
-        return array_key_exists($key, $this->container) ? $this->container[$key] : $default;
+        return array_key_exists($key, $this->settings) ? $this->settings[$key] : $default;
     }
 
     /**
+     * @api
      * @param string $key
      * @return bool
      */    
     public function has($key)
     {
-        return array_key_exists($key, $this->container);
+        return array_key_exists($key, $this->settings);
     }
 
     /**
+     * @api
      * @param string $env
      * @return bool
      */
-    public function isEnv($env)
+    public function isEnvironment($env)
     {
         return in_array($env, $this->environments);
     }
 
     /**
+     * @api
      * @return bool
      */
     public function isProduction()
     {
-        return $this->isEnv('');
+        return $this->isEnvironment('');
     }
 }
