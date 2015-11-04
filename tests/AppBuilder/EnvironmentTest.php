@@ -78,4 +78,17 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->builder->isEnvironment('test'));
         $this->assertFalse($this->builder->isEnvironment('bad'));
     }
+
+    /**
+     * @test
+     */
+    function addEnvironment_adds_new_env()
+    {
+        $this->builder->loadEnvironment('local');
+        $this->builder->addEnvironment('test');
+        $this->assertFalse($this->builder->isProduction());
+        $this->assertTrue($this->builder->isEnvironment('local'));
+        $this->assertTrue($this->builder->isEnvironment('test'));
+        $this->assertFalse($this->builder->isEnvironment('bad'));
+    }
 }

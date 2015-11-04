@@ -28,7 +28,7 @@ class AppBuilder
     /**
      * @var array       list of environment
      */
-    public $environments = [''];
+    private $environments = [''];
 
     /**
      * @var bool        debug or not
@@ -235,5 +235,13 @@ class AppBuilder
     public function isProduction()
     {
         return $this->isEnvironment('');
+    }
+
+    /**
+     * @param string|array $env
+     */
+    public function addEnvironment($env)
+    {
+        $this->environments = array_merge($this->environments, (array) $env);
     }
 }
