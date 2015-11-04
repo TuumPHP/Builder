@@ -125,4 +125,15 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->builder = AppBuilder::forge(__DIR__.'/conf', null, ['debug' => 'test']);
         $this->assertEquals('test', $this->builder->debug);
     }
+
+    /**
+     * @test
+     */
+    function forge_option_envFile_loads_environment()
+    {
+        $this->builder = AppBuilder::forge(__DIR__.'/conf', __DIR__.'/env', ['env-file' => 'local']);
+        $this->assertFalse($this->builder->isProduction());
+        $this->assertTrue($this->builder->isEnvironment('local'));
+        $this->assertFalse($this->builder->isEnvironment('bad'));
+    }
 }

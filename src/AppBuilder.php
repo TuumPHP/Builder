@@ -55,8 +55,9 @@ class AppBuilder
      * forges AppBuilder.
      *
      * $options = array(
-     *   'env' => 'env-name',  // or array of env-names.
-     *   'debug' => true,      // or false.
+     *   'env'      => 'env-name',  // or array of env-names.
+     *   'debug'    => true,      // or false.
+     *   'env-file' => 'env-file-name',
      * )
      *
      * @param string      $config_dir
@@ -72,6 +73,9 @@ class AppBuilder
         }
         if (isset($options['debug'])) {
             $builder->debug = $options['debug'];
+        }
+        if (isset($options['env-file'])) {
+            $builder->loadEnvironment($options['env-file']);
         }
         return $builder;
     }
