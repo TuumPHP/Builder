@@ -82,13 +82,47 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    function addEnvironment_adds_new_env()
+    function setEnvironment_sets_new_env()
     {
         $this->builder->loadEnvironment('local');
-        $this->builder->addEnvironment('test');
+        $this->builder->setEnvironment('test');
         $this->assertFalse($this->builder->isProduction());
-        $this->assertTrue($this->builder->isEnvironment('local'));
+        $this->assertFalse($this->builder->isEnvironment('local'));
         $this->assertTrue($this->builder->isEnvironment('test'));
         $this->assertFalse($this->builder->isEnvironment('bad'));
+    }
+
+    /**
+     * @test
+     */
+    function forge_option_env_sets_environment()
+    {
+        $this->builder = AppBuilder::forge(__DIR__.'/conf', __DIR__.'/env', ['env' => 'test']);
+        $this->assertFalse($this->builder->isProduction());
+        $this->assertFalse($this->builder->isEnvironment('local'));
+        $this->assertTrue($this->builder->isEnvironment('test'));
+        $this->assertFalse($this->builder->isEnvironment('bad'));
+    }
+
+    /**
+     * @test
+     */
+    function null_varDir_ignores_loadEnvironment()
+    {
+        $this->builder = AppBuilder::forge(__DIR__.'/conf', null, ['env' => 'test']);
+        $this->builder->loadEnvironment('local');
+        $this->assertFalse($this->builder->isProduction());
+        $this->assertFalse($this->builder->isEnvironment('local'));
+        $this->assertTrue($this->builder->isEnvironment('test'));
+        $this->assertFalse($this->builder->isEnvironment('bad'));
+    }
+
+    /**
+     * @test
+     */
+    function forge_option_debug_sets_debug_property()
+    {
+        $this->builder = AppBuilder::forge(__DIR__.'/conf', null, ['debug' => 'test']);
+        $this->assertEquals('test', $this->builder->debug);
     }
 }

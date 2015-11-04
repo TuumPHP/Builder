@@ -48,17 +48,32 @@ class AppBuilder
     {
         // default configuration.
         $this->app_dir = $config_dir;
-        $this->var_dir = $var_dir ?: dirname($config_dir) . '/var';
+        $this->var_dir = $var_dir;
     }
 
     /**
+     * forges AppBuilder.
+     *
+     * $options = array(
+     *   'env' => 'env-name',  // or array of env-names.
+     *   'debug' => true,      // or false.
+     * )
+     *
      * @param string      $config_dir
      * @param string|null $var_dir
+     * @param array       $options
      * @return AppBuilder
      */
-    public static function forge($config_dir, $var_dir = null)
+    public static function forge($config_dir, $var_dir = null, $options=[])
     {
-        return new self($config_dir, $var_dir);
+        $builder = new self($config_dir, $var_dir);
+        if (isset($options['env'])) {
+            $builder->environments = (array) ($options['env']);
+        }
+        if (isset($options['debug'])) {
+            $builder->debug = $options['debug'];
+        }
+        return $builder;
     }
 
     /**
@@ -163,17 +178,20 @@ class AppBuilder
     /**
      * loads the environment based configuration.
      *
+     * must specify the $this->var_dir, and $env_file must exist.
+     *
      * @api
      * @param string $env_file
      * @return $this
      */
     public function loadEnvironment($env_file)
     {
+        if (is_null($this->var_dir)) {
+            return $this;
+        }
         $directory = $this->var_dir . DIRECTORY_SEPARATOR;
         $environments = $this->execute($directory.'/'.$env_file);
-        if ($environments === 1 || $environments === null) {
-            $this->environments = [''];
-        } else {
+        if ($environments !== 1 && $environments !== null) {
             $this->environments = (array)$environments;
         }
 
@@ -240,8 +258,8 @@ class AppBuilder
     /**
      * @param string|array $env
      */
-    public function addEnvironment($env)
+    public function setEnvironment($env)
     {
-        $this->environments = array_merge($this->environments, (array) $env);
+        $this->environments = (array) $env;
     }
 }
