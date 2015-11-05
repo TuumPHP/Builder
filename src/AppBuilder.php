@@ -7,9 +7,13 @@ namespace Tuum\Builder;
  * a generic application builder for environment aware process.
  *
  * @package WScore\Site\Builder
+ *          
+ * @property Environment $env
  */
 class AppBuilder
 {
+    use SettingTrait;
+    
     /**
      * @var mixed       the application to configure
      */
@@ -26,31 +30,39 @@ class AppBuilder
     public $var_dir;
 
     /**
-     * @var array       list of environment
-     */
-    private $environments = [''];
-
-    /**
      * @var bool        debug or not
      */
     public $debug = false;
 
     /**
-     * @var array
+     * @var Environment
      */
-    private $settings = [];
+    private $envObj;
 
     /**
-     * @param string      $config_dir
-     * @param string|null $var_dir
+     * @param string             $config_dir
+     * @param string|null        $var_dir
+     * @param null|Environment   $env
      */
-    public function __construct($config_dir, $var_dir = null)
+    public function __construct($config_dir, $var_dir = null, $env = null)
     {
-        // default configuration.
         $this->app_dir = $config_dir;
         $this->var_dir = $var_dir;
+        $this->envObj  = $env ?: new Environment();
     }
 
+    /**
+     * @param string $key
+     * @return null|mixed
+     */
+    public function __get($key)
+    {
+        if ($key === 'env') {
+            return $this->envObj;
+        }
+        return null;
+    }
+    
     /**
      * forges AppBuilder.
      *
@@ -69,7 +81,7 @@ class AppBuilder
     {
         $builder = new self($config_dir, $var_dir);
         if (isset($options['env'])) {
-            $builder->environments = (array) ($options['env']);
+            $builder->env->setEnvironment((array) $options['env']);
         }
         if (isset($options['debug'])) {
             $builder->debug = $options['debug'];
@@ -81,6 +93,7 @@ class AppBuilder
     }
 
     /**
+     * @api
      * @param callable $callable
      * @return $this
      */
@@ -109,8 +122,8 @@ class AppBuilder
     public function configure($config)
     {
         $directory = $this->app_dir . DIRECTORY_SEPARATOR;
-        foreach ($this->listEnvForConf() as $env) {
-            $file = ($env ? $env . '/' : '') . $config;
+        foreach ($this->envObj->listEnvironments(['']) as $env) {
+            $file = ($env ? $env . DIRECTORY_SEPARATOR : '') . $config;
             $this->execute($directory . $file);
         }
 
@@ -134,9 +147,9 @@ class AppBuilder
     public function execConfig($config)
     {
         $directory = $this->app_dir . DIRECTORY_SEPARATOR;
-        $list_env  = array_reverse($this->listEnvForConf());
+        $list_env  = array_reverse($this->envObj->listEnvironments(['']));
         foreach ($list_env as $env) {
-            $file = ($env ? $env . '/' : '') . $config;
+            $file = ($env ? $env . DIRECTORY_SEPARATOR : '') . $config;
             if ($this->execute($directory . $file) !== false) {
                 return $this;
             }
@@ -145,16 +158,6 @@ class AppBuilder
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    private function listEnvForConf()
-    {
-        $list = array_merge([''], $this->environments);
-        $list = array_unique($list);
-        return $list;
-    }
-    
     /**
      * evaluate PHP file ($__file.php) and returns the value.
      * the file path must be an absolute path. 
@@ -180,9 +183,7 @@ class AppBuilder
     }
 
     /**
-     * loads the environment based configuration.
-     *
-     * must specify the $this->var_dir, and $env_file must exist.
+     * loads the environment from file at $this->var_dir.
      *
      * @api
      * @param string $env_file
@@ -193,77 +194,11 @@ class AppBuilder
         if (is_null($this->var_dir)) {
             return $this;
         }
-        $directory = $this->var_dir . DIRECTORY_SEPARATOR;
-        $environments = $this->execute($directory.'/'.$env_file);
-        if ($environments !== 1 && $environments !== null) {
-            $this->environments = (array)$environments;
-        }
+        $this->envObj->loadEnvironment(
+            $this->var_dir . DIRECTORY_SEPARATOR . $env_file . '.php',
+            [ 'builder' => $this, 'app' => $this->app]
+        );
 
         return $this;
-    }
-
-    /**
-     * sets $value as $key in local container.
-     *
-     * @api
-     * @param string $key
-     * @param mixed  $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $this->settings[$key] = $value;
-
-        return $this;
-    }
-
-    /**
-     * gets $key from the local container.
-     *
-     * @api
-     * @param string     $key
-     * @param null|mixed $default
-     * @return mixed
-     */
-    public function get($key, $default = null)
-    {
-        return array_key_exists($key, $this->settings) ? $this->settings[$key] : $default;
-    }
-
-    /**
-     * @api
-     * @param string $key
-     * @return bool
-     */    
-    public function has($key)
-    {
-        return array_key_exists($key, $this->settings);
-    }
-
-    /**
-     * @api
-     * @param string $env
-     * @return bool
-     */
-    public function isEnvironment($env)
-    {
-        return in_array($env, $this->environments);
-    }
-
-    /**
-     * @api
-     * @return bool
-     */
-    public function isProduction()
-    {
-        return $this->isEnvironment('');
-    }
-
-    /**
-     * @param string|array $env
-     */
-    public function setEnvironment($env)
-    {
-        $this->environments = (array) $env;
     }
 }
