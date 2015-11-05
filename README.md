@@ -145,9 +145,15 @@ It is possible to use the environment file to set secret keys, such as DB pass, 
 
 ### Finding the Environment
 
-check for the current environment using `isEnvironment` and `isProduction` methods;
+Check for the current environment using `is` and `isProduction` methods;
 
 ```php
-echo $builder->isProduction();        // bool
-echo $builder->isEnvironment('test'); // bool
+echo $builder->env->isProduction();        // bool
+echo $builder->env->is('test'); // bool
+```
+
+You can force the environment by 
+
+```php
+$builder->env->setEnvironment(['local', 'test']);
 ```
