@@ -50,7 +50,7 @@ In the setup.php file, you can access to the builder as `$builder` and the appli
 <?php
 use Tuum\Builder\AppBuilder;
 /** @var AppBuilder $builder */
-/** @var YourApp $app */
+/** @var MyApp $app */
 
 /**
  * set up your application
@@ -89,7 +89,7 @@ For __production environment__, return **NOTHING**, or empty array.
 
 
 
-### `Configuration` mehtod
+### `Configure` mehtod
 
 To setup for environment other than production, create a directory under `$config_dir` with the environment name, and create a configuration file exactly same name as the production. 
 
