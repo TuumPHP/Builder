@@ -142,13 +142,18 @@ class AppBuilder
 
     /**
      * loads the environment from file at $this->var_dir.
+     * if $env_file is an array, use it as environment.
      *
      * @api
-     * @param string $env_file
+     * @param string|array $env_file
      * @return $this
      */
     public function loadEnvironment($env_file)
     {
+        if (is_array($env_file)) {
+            $this->envObj->setEnvironment($env_file);
+            return $this;
+        }
         if (is_null($this->var_dir)) {
             return $this;
         }
