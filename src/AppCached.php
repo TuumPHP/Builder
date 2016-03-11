@@ -25,7 +25,7 @@ class AppCached extends AppBuilder
         if (!$this->debug && file_exists($cached)) {
             return unserialize(\file_get_contents($cached));
         }
-        parent::setup($closure);
+        call_user_func($closure, $this);
         if (!$this->debug) {
             \file_put_contents($cached, serialize($this));
             chmod($cached, 0666);

@@ -7,8 +7,6 @@ namespace Tuum\Builder;
  * a generic application builder for environment aware process.
  *
  * @package WScore\Site\Builder
- *          
- * @property Environment $env
  */
 class AppBuilder
 {
@@ -52,18 +50,6 @@ class AppBuilder
     }
 
     /**
-     * @param string $key
-     * @return null|mixed
-     */
-    public function __get($key)
-    {
-        if ($key === 'env') {
-            return $this->envObj;
-        }
-        return null;
-    }
-    
-    /**
      * forges AppBuilder.
      *
      * $options = array(
@@ -81,7 +67,7 @@ class AppBuilder
     {
         $builder = new self($config_dir, $var_dir);
         if (isset($options['env'])) {
-            $builder->env->setEnvironment((array) $options['env']);
+            $builder->envObj->setEnvironment((array) $options['env']);
         }
         if (isset($options['debug'])) {
             $builder->debug = $options['debug'];
@@ -93,58 +79,23 @@ class AppBuilder
     }
 
     /**
-     * @api
-     * @param callable $callable
-     * @return $this
-     */
-    public function setup(callable $callable)
-    {
-        $callable($this);
-
-        return $this;
-    }
-
-    /**
-     * read multiple configuration files at $this->app_dir/$file.
+     * read the configuration script at $this->app_dir/{$env/}$file.
      *
-     * this reads multiple configuration files under $app_dir.
-     * if $app_dir = config and $config = mail, the files are,
-     *   - config/mail.php
-     *   - config/{$environment}/mail.php
-     * 
-     * always read the main config file (i.e. without environment), 
-     * then the environment specific configuration file. 
+     * if environment, $env, is defined, read the scripts for the
+     * environment, and terminate the loop.
+     *
+     * if no environment scripts are found, read the production
+     * (i.e. no $env/) script.
+     *
+     * if the env-specific script depends on the production script,
+     * read the production script inside env-specific script, as
+     * $builder->execute(__DIR__ . '/../your-scripts');
      *
      * @api
      * @param string $config
      * @return $this
      */
     public function configure($config)
-    {
-        $directory = $this->app_dir . DIRECTORY_SEPARATOR;
-        foreach ($this->envObj->listEnvironments(['']) as $env) {
-            $file = ($env ? $env . DIRECTORY_SEPARATOR : '') . $config;
-            $this->execute($directory . $file);
-        }
-
-        return $this;
-    }
-
-    /**
-     * read only one configuration file for specified environment
-     * at $this->app_dir/$file. reads config for production if 
-     * no env-specific conf files are found.
-     *
-     * if $app_dir = config and $config = mail, searches for,
-     *   - config/mail.php
-     *   - config/{$environment}/mail.php
-     * 
-     * and reads the first configuration file found. 
-     * 
-     * @param string $config
-     * @return $this
-     */
-    public function execConfig($config)
     {
         $directory = $this->app_dir . DIRECTORY_SEPARATOR;
         $list_env  = array_reverse($this->envObj->listEnvironments(['']));
@@ -160,7 +111,10 @@ class AppBuilder
 
     /**
      * evaluate PHP file ($__file.php) and returns the value.
-     * the file path must be an absolute path. 
+     * the file path must be an absolute path.
+     *
+     * if a callable is returned from the script, builder
+     * will execute the callable with $this as an argument.
      *
      * @api
      * @param string $__file
@@ -179,18 +133,27 @@ class AppBuilder
 
         /** @noinspection PhpIncludeInspection */
 
-        return include($__file);
+        $returned = include($__file);
+        if (is_callable($returned)) {
+            call_user_func($returned, $this);
+        }
+        return $returned;
     }
 
     /**
      * loads the environment from file at $this->var_dir.
+     * if $env_file is an array, use it as environment.
      *
      * @api
-     * @param string $env_file
+     * @param string|array $env_file
      * @return $this
      */
     public function loadEnvironment($env_file)
     {
+        if (is_array($env_file)) {
+            $this->envObj->setEnvironment($env_file);
+            return $this;
+        }
         if (is_null($this->var_dir)) {
             return $this;
         }
@@ -200,5 +163,22 @@ class AppBuilder
         );
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isProduction()
+    {
+        return $this->envObj->isProduction();
+    }
+
+    /**
+     * @param string $env
+     * @return bool
+     */
+    public function isEnv($env)
+    {
+        return $this->envObj->is($env);
     }
 }
