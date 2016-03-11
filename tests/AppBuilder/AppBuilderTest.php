@@ -20,20 +20,6 @@ class AppBuilderTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    function setup_uses_closure()
-    {
-        $this->builder->setup(function(AppBuilder $builder) {
-            $builder->set('test', 'tested');
-        });
-        $this->assertEquals('tested', $this->builder->get('test'));
-        $this->assertTrue($this->builder->has('test'));
-        $this->assertFalse($this->builder->has('no-such'));
-
-    }
-    
-    /**
-     * @test
-     */
     function set_get_has_works()
     {
         $this->builder->set('test', 'tested');

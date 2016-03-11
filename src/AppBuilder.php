@@ -93,18 +93,6 @@ class AppBuilder
     }
 
     /**
-     * @api
-     * @param callable $callable
-     * @return $this
-     */
-    public function setup(callable $callable)
-    {
-        $callable($this);
-
-        return $this;
-    }
-
-    /**
      * read the configuration script at $this->app_dir/{$env/}$file.
      *
      * if environment, $env, is defined, read the scripts for the
