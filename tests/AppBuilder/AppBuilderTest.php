@@ -5,7 +5,7 @@ use Tuum\Builder\AppBuilder;
 
 require_once(dirname(__DIR__) . '/autoloader.php');
 
-class ExecConfigTest extends \PHPUnit_Framework_TestCase
+class AppBuilderTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var AppBuilder
@@ -45,30 +45,45 @@ class ExecConfigTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    function set_production_env()
+    function default_env_is_production_and_reads_only_the_production_config()
     {
-        $this->builder->execConfig('config');
+        $this->builder->configure('config');
         $this->assertEquals('tested', $this->builder->get('test-production'));
+        $this->assertEquals(null, $this->builder->get('test-local'));
+        $this->assertEquals(null, $this->builder->get('test-test'));
     }
 
     /**
      * @test
      */
-    function set_local_production_env()
+    function setting_local_env_reads_only_the_local_config()
     {
         $this->builder->loadEnvironment('local');
-        $this->builder->execConfig('config');
+        $this->builder->configure('config');
         $this->assertEquals('tested', $this->builder->get('test-local'));
+        $this->assertEquals(null, $this->builder->get('test-production'));
+        $this->assertEquals(null, $this->builder->get('test-test'));
         $this->assertEquals(null, $this->builder->get('test-production'));
     }
 
     /**
      * @test
      */
-    function execConfig_reads_config_file_for_production_if_no_other()
+    function configure_reads_config_scripts()
     {
         $this->builder->loadEnvironment('local');
-        $this->builder->execConfig('production');
+        $this->builder->configure('production');
         $this->assertEquals('done', $this->builder->get('production'));
+    }
+
+    /**
+     * @test
+     */
+    function setting_test_env_reads_script_resolving_production_scripts()
+    {
+        $this->builder->loadEnvironment('test');
+        $this->builder->configure('production');
+        $this->assertEquals('done', $this->builder->get('production'));
+        $this->assertEquals('done', $this->builder->get('tests'));
     }
 }

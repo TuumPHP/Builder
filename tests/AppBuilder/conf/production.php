@@ -1,8 +1,10 @@
 <?php
 use Tuum\Builder\AppBuilder;
 
-/** @var AppBuilder $builder */
+return function(AppBuilder $builder) {
 
-$builder->set('production', 'done');
+    /** @var AppBuilder $builder */
 
-return ;
+    $builder->set('production', 'done');
+
+};
