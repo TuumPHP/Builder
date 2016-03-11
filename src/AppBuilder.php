@@ -7,8 +7,6 @@ namespace Tuum\Builder;
  * a generic application builder for environment aware process.
  *
  * @package WScore\Site\Builder
- *          
- * @property Environment $env
  */
 class AppBuilder
 {
@@ -52,18 +50,6 @@ class AppBuilder
     }
 
     /**
-     * @param string $key
-     * @return null|mixed
-     */
-    public function __get($key)
-    {
-        if ($key === 'env') {
-            return $this->envObj;
-        }
-        return null;
-    }
-    
-    /**
      * forges AppBuilder.
      *
      * $options = array(
@@ -81,7 +67,7 @@ class AppBuilder
     {
         $builder = new self($config_dir, $var_dir);
         if (isset($options['env'])) {
-            $builder->env->setEnvironment((array) $options['env']);
+            $builder->envObj->setEnvironment((array) $options['env']);
         }
         if (isset($options['debug'])) {
             $builder->debug = $options['debug'];
@@ -172,5 +158,22 @@ class AppBuilder
         );
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isProduction()
+    {
+        return $this->envObj->isProduction();
+    }
+
+    /**
+     * @param string $env
+     * @return bool
+     */
+    public function isEnv($env)
+    {
+        return $this->envObj->is($env);
     }
 }

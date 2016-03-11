@@ -72,4 +72,24 @@ class AppBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('done', $this->builder->get('production'));
         $this->assertEquals('done', $this->builder->get('tests'));
     }
+
+    /**
+     * @test
+     */
+    function isProduction()
+    {
+        $this->builder->loadEnvironment('production');
+        $this->assertTrue($this->builder->isProduction());
+        $this->assertFalse($this->builder->isEnv('local'));
+    }
+
+    /**
+     * @test
+     */
+    function isEnv_on_local()
+    {
+        $this->builder->loadEnvironment('local');
+        $this->assertFalse($this->builder->isProduction());
+        $this->assertTrue($this->builder->isEnv('local'));
+    }
 }
