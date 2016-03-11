@@ -48,20 +48,19 @@ In the setup.php file, you can access to the builder as `$builder` and the appli
 
 ```php
 <?php
-use Tuum\Builder\AppBuilder;
-/** @var AppBuilder $builder */
-/** @var MyApp $app */
-
-/**
- * set up your application
- */
+// set up application. 
+$builder->configure('setup');
 ```
 
-and load the configuration, 
+In `setup.php` file, set up the application, such as:
 
 ```php
-$builder->setup(function (AppBuilder $builder) {
-    $builder->configure('setup');
+<?php
+
+return function(AppBuilder Builder) {
+    $app = $builder->app;
+    $app->get('/top', function() { /* do something! */ });
+};
 ```
 
 
@@ -70,7 +69,7 @@ Environment
 
 ### Loading Environment
 
-Create a php file which returns environment strings under `$builder->var_dir` which returns environment name (or an array of environment names). 
+Create a php file which returns environment strings under `$builder->var_dir` which returns environment name (or an array of environment names), such as `env.php`. 
 
 ```php
 # environment file
@@ -80,16 +79,14 @@ return ['local', 'test'];
 and to load the environments, 
 
 ```php
-$builder->setup(function (AppBuilder $builder) {
-    $builder->loadEnvironment('/env');
-});
+$builder->loadEnvironment('env');
 ```
 
-For __production environment__, return **NOTHING**, or empty array. 
+For __production environment__, return **NOTHING**, or empty array. Or, simply, do not create an env-file at all. 
 
 
 
-### `Configure` mehtod
+### `configure` mehtod
 
 To setup for environment other than production, create a directory under `$config_dir` with the environment name, and create a configuration file exactly same name as the production. 
 
@@ -102,28 +99,20 @@ To setup for environment other than production, create a directory under `$confi
       +- setup.php
 ```
 
-The builder will invoke all the configuration files starting from the production and the specified environments. 
+The builder will execute **only** one configuration file for the current environment. 
 
-### `execConfig` method
+#### to read production config
 
-To execute **only** one configuration file for the current environment, use `execConfig` method. 
-
-For instance, the following code 
+If the environment specific configuration file requires other script (such as one for the main production), do something like:
 
 ```php
-$builder->execConfig('setup'); 
+return function(AppBuilder Builder) {
+    // load the main production script. 
+    $builder->execute(dirname(__DIR__).'/script-name'); 
+    // continue configuration.
+    $builder->app->getContainer()->set('some', 'value');
+};
 ```
-
-will read `setup.php` file based on the environment;
-
-*   in production: `config/setup.php`,
-*   in local: `config/local/setup.php`,
-*   in test+local: `config/test/setup.php`,
-
-warning:
-
-* [ ] the behavior of 'execConfig' is not fixed yet. 
-
 
 
 More About AppBuilder
@@ -148,12 +137,12 @@ It is possible to use the environment file to set secret keys, such as DB pass, 
 Check for the current environment using `is` and `isProduction` methods;
 
 ```php
-echo $builder->env->isProduction();        // bool
-echo $builder->env->is('test'); // bool
+echo $builder->isProduction(); // bool
+echo $builder->isEnv('test'); // bool
 ```
 
 You can force the environment by 
 
 ```php
-$builder->env->setEnvironment(['local', 'test']);
+$builder->loadEnvironment(['local', 'test']);
 ```
