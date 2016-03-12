@@ -84,28 +84,29 @@ class AppBuilder
     /**
      * read the configuration script at $this->app_dir/{$env/}$file.
      *
-     * if environment, $env, is defined, read the scripts for the
-     * environment, and terminate the loop.
-     *
      * if no environment scripts are found, read the production
      * (i.e. no $env/) script.
      *
+     * if an environment, $env, is defined, read the scripts for the
+     * environment, and terminate the loop. if no env-specific
+     * scripts are found, reads the production script.
+     *
      * if the env-specific script depends on the production script,
      * read the production script inside env-specific script, as
-     * $builder->execute(__DIR__ . '/../your-scripts');
+     * $builder->execute(__DIR__ . '/../your-scripts.php');
      *
      * @api
      * @param string $config
-     * @return $this
+     * @return $this|mixed
      */
     public function configure($config)
     {
         $directory = $this->app_dir . DIRECTORY_SEPARATOR;
         $list_env  = array_reverse($this->envObj->listEnvironments(['']));
         foreach ($list_env as $env) {
-            $file = ($env ? $env . DIRECTORY_SEPARATOR : '') . $config;
-            if ($this->execute($directory . $file) !== false) {
-                return $this;
+            $file = $directory . ($env ? $env . DIRECTORY_SEPARATOR : '') . $config . '.php';
+            if (file_exists($file)) {
+                return $this->execute($file);
             }
         }
 
@@ -125,7 +126,9 @@ class AppBuilder
      */
     public function execute($__file)
     {
-        $__file = $__file . '.php';
+        if (substr($__file, -4) !== '.php' ) {
+            $__file = $__file . '.php';
+        }
         if (!file_exists($__file)) {
             return false;
         }
