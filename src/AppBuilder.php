@@ -38,13 +38,13 @@ class AppBuilder
     private $envObj;
 
     /**
-     * @param string             $config_dir
-     * @param string|null        $var_dir
-     * @param null|Environment   $env
+     * @param string           $app_dir
+     * @param string|null      $var_dir
+     * @param null|Environment $env
      */
-    public function __construct($config_dir, $var_dir = null, $env = null)
+    public function __construct($app_dir, $var_dir = null, $env = null)
     {
-        $this->app_dir = $config_dir;
+        $this->app_dir = $app_dir;
         $this->var_dir = $var_dir;
         $this->envObj  = $env ?: new Environment();
     }
@@ -58,14 +58,14 @@ class AppBuilder
      *   'env-file' => 'env-file-name',
      * )
      *
-     * @param string      $config_dir
+     * @param string      $app_dir
      * @param string|null $var_dir
      * @param array       $options
      * @return AppBuilder
      */
-    public static function forge($config_dir, $var_dir = null, $options=[])
+    public static function forge($app_dir, $var_dir = null, $options=[])
     {
-        $builder = new self($config_dir, $var_dir);
+        $builder = new self($app_dir, $var_dir);
         if (isset($options['env'])) {
             $builder->envObj->setEnvironment((array) $options['env']);
         }
@@ -75,6 +75,9 @@ class AppBuilder
         if (isset($options['env-file'])) {
             $builder->loadEnvironment($options['env-file']);
         }
+        $options['app-dir'] = $app_dir;
+        $options['var-dir'] = $var_dir;
+        $builder->set('options', $options);
         return $builder;
     }
 
@@ -135,7 +138,7 @@ class AppBuilder
 
         $returned = include($__file);
         if (is_callable($returned)) {
-            call_user_func($returned, $this);
+            $returned = call_user_func($returned, $this);
         }
         return $returned;
     }
