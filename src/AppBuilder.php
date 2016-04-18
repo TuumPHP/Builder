@@ -66,13 +66,15 @@ class AppBuilder
     public static function forge($app_dir, $var_dir = null, $options=[])
     {
         $builder = new self($app_dir, $var_dir);
-        if (isset($options['env'])) {
-            $builder->envObj->setEnvironment((array) $options['env']);
-        }
         if (isset($options['debug'])) {
             $builder->debug = $options['debug'];
         }
-        if (isset($options['env-file'])) {
+        // set environment
+        if (isset($options['env'])) {
+            // directly specify using 'env'.
+            $builder->envObj->setEnvironment((array) $options['env']);
+        } elseif (isset($options['env-file'])) {
+            // or, set from 'env-file'.
             $builder->loadEnvironment($options['env-file']);
         }
         $options['app-dir'] = $app_dir;

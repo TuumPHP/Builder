@@ -118,6 +118,34 @@ return function(AppBuilder Builder) {
 More About AppBuilder
 -------------------------
 
+### Simple Construction 
+
+`AppBuilder::forge` provides a simpler construction, 
+
+```php
+$builder = AppBuilder::forge(
+    $app_dir,
+    $var_dir, 
+    [
+        'debug'    => true,
+        'env'      => 'local',
+        'env-file' => 'env.php',
+    ]
+);
+```
+
+where you can set an optional array. 
+
+* `debug` for setting debug (i.e. `$builder->debug`),
+* `env` for directly specifying environment,
+* `env-file` for reading environment from the specified file (if `env` is not set). 
+
+The used option can be retrieved by 
+
+```php
+$options = $builder->get('options');
+```
+
 ### Builder as Container
 
 The builder has a really simple container functionality:
