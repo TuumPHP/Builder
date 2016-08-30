@@ -92,4 +92,16 @@ class AppBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->builder->isProduction());
         $this->assertTrue($this->builder->isEnv('local'));
     }
+
+    /**
+     * @test
+     */
+    function getOptions_returns_array_of_options()
+    {
+        $this->builder->set('tests', 'tested');
+        $options = $this->builder->getOptions();
+        
+        $this->assertTrue(is_array($options));
+        $this->assertEquals('tested', $options['tests']);
+    }
 }

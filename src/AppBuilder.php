@@ -10,7 +10,7 @@ namespace Tuum\Builder;
  */
 class AppBuilder
 {
-    use SettingTrait;
+    use OptionsTrait;
     
     /**
      * @var mixed       the application to configure
@@ -50,6 +50,15 @@ class AppBuilder
     }
 
     /**
+     * @param string $key
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        return $this->get($key);
+    }
+    
+    /**
      * forges AppBuilder.
      *
      * $options = array(
@@ -79,7 +88,7 @@ class AppBuilder
         }
         $options['app-dir'] = $app_dir;
         $options['var-dir'] = $var_dir;
-        $builder->set('options', $options);
+        $builder->setOptions($options);
         return $builder;
     }
 
