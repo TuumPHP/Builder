@@ -75,8 +75,10 @@ class Builder
     public function load($file)
     {
         $file = $this->getAppDir() . DIRECTORY_SEPARATOR . $file;
-
-        return $this->execute($file);
+        $returned = $this->execute($file);
+        $this->data[$file] = $returned;
+        
+        return $returned;
     }
 
     /**
