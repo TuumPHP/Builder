@@ -3,7 +3,7 @@ Application Builder
 
 A generic builder for application construction based on various server environment. 
 
-### Lisence
+### Licence
 
 MIT License
 
@@ -14,54 +14,95 @@ PSR-1, PSR-2, and PSR-4.
 Basic Usage
 -----------
 
+### Directory Structure
+
+This component assumes there are two directories to build an application: 
+
+*	`APP_DIR`: directory for application settings, and 
+* 	`VAR_DIR`: directory for files not under version control. 
+
+For instance, 
+
+```
++ config/          // <- APP_DIR
+   + setup.php
+   + routes.php
++ var/             // <- VAR_DIR
+   + .env
+   + cache/
+```
+
+
 ### Construction
 
 Construct the application builder with two directories:
 
-*	`$app_dir` for application settings, and 
-* 	`$var_dir` for files not under version control. 
-
 ```php
-use WScore\Builder\AppBuilder;
+use WScore\Builder\Builder;
 
-$app_dir  = __DIR__ . '/config/;
-$var_dir  = dirname(__DIR__).'/var';
-$builder  = AppBuilder::forge($app_dir, $var_dir);
+$builder  = new Builder([
+    Builder::APP_DIR => __DIR__ . '/config,  // app directory
+    Builder::VAR_DIR => __DIR__ . '/var',    // var directory
+    Builder::DEBUG   => true                 // debug
+]);
 ```
 
-then, set your favorite application such as, 
+Or, maybe use `forge` method, 
 
 ```php
-$builder->app = new MyApp();
+use WScore\Builder\Builder;
+
+$builder  = Builder::forge(
+    __DIR__ . '/config,  // app directory
+    __DIR__ . '/var',    // var directory
+    true                 // debug
+);
 ```
+
+### Setting Application
+
+```php
+$builder->setApp(new MyApp());
+$app = $builder->getApp();
+```
+
 
 ### Configuration File
 
-Create configuration files under the `$builder->app_dir`. For example, 
-
-```
-+ config/
-   +- setup.php
-```
-
-In the setup.php file, you can access to the builder as `$builder` and the application as `$app`, such as, 
+To load configuration files under the `APP_DIR`:
 
 ```php
-<?php
-// set up application. 
-$builder->configure('setup');
+$builder->load('setup');
+$builder->load('routes');
 ```
 
 In `setup.php` file, set up the application, such as:
 
 ```php
-<?php
+/** @var Tuum\Builder\Builder $builder */
+$app->set();
+```
 
-return function(AppBuilder Builder) {
+```php
+use WScore\Builder\Builder;
+
+return function(Builder Builder) {
     $app = $builder->app;
     $app->get('/top', function() { /* do something! */ });
 };
 ```
+
+
+### Environment File
+
+Loads `.env` file using [vlucas's dotenv](https://github.com/vlucas/phpdotenv) component.
+The default location of the `.env` file is at `VAR_DIR`. 
+
+```php
+$builder->loadEnv();
+```
+
+
 
 
 Environment
