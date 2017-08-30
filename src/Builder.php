@@ -22,7 +22,7 @@ class Builder
         $this->data = $data + [
                 self::APP_DIR => __DIR__,
                 self::VAR_DIR => __DIR__,
-                self::DEBUG   => false,
+                self::DEBUG   => true,
             ];
     }
 
@@ -33,7 +33,7 @@ class Builder
      * @param array  $data
      * @return Builder
      */
-    public static function forge($app_dir, $var_dir, $debug, $data = [])
+    public static function forge($app_dir, $var_dir, $debug = true, $data = [])
     {
         $data = [
                 self::APP_DIR => $app_dir,
@@ -76,19 +76,26 @@ class Builder
     {
         $file = $this->getAppDir() . DIRECTORY_SEPARATOR . $file;
         $returned = $this->execute($file);
-        $this->data[$file] = $returned;
+        if (!isset($this->data[$file])) {
+            $this->data[$file] = $returned;
+        }
         
         return $returned;
     }
 
     /**
-     *
+     * @param string $env_name
+     * @return bool
      */
-    public function loadEnv()
+    public function loadEnv($env_name = '.env')
     {
         $env_dir = $this->get(self::ENV_FILE) ?: $this->getVarDir();
-        $env     = new Dotenv($env_dir);
-        $env->load();
+        if (file_exists($env_dir . '/' . $env_name)) {
+            $env     = new Dotenv($env_dir, $env_name);
+            $env->load();
+            return true;
+        }
+        return false;
     }
 
     /**

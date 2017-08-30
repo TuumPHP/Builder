@@ -59,38 +59,40 @@ $builder  = Builder::forge(
 );
 ```
 
-### Setting Application
-
-```php
-$builder->setApp(new MyApp());
-$app = $builder->getApp();
-```
-
-
-### Configuration File
+### Loading PHP File
 
 To load configuration files under the `APP_DIR`:
 
 ```php
 $builder->load('setup');
-$builder->load('routes');
+$builder->load('closure');
 ```
 
 In `setup.php` file, set up the application, such as:
 
 ```php
 /** @var Tuum\Builder\Builder $builder */
-$app->set();
+$builder->set('some', 'value'); // set value
+
+return ['settings' => 'done'];
 ```
+
+The $builder remembers whatever returned from a configuration file 
+as its load name (i.e. $builder->has('setup');).
+
+### Loading Closure
+
+PHP file can return a callable to load into $builder, such as 
 
 ```php
 use WScore\Builder\Builder;
 
 return function(Builder Builder) {
-    $app = $builder->app;
-    $app->get('/top', function() { /* do something! */ });
+    $builder->set('more', 'value');
 };
 ```
+
+
 
 
 ### Environment File
@@ -102,116 +104,13 @@ The default location of the `.env` file is at `VAR_DIR`.
 $builder->loadEnv();
 ```
 
+### Getting Values
 
-
-
-Environment
------------
-
-### Loading Environment
-
-Create a php file which returns environment strings under `$builder->var_dir` which returns environment name (or an array of environment names), such as `env.php`. 
+`get` gets environment value, or from `$builder`'s internal value, or default value. 
 
 ```php
-# environment file
-return ['local', 'test'];
-```
+$builder->get('GET_FROM_ENV'); // from .env file
+$builder->get('setup');        // from internal value
+$builder->get('bad', 'none');  // from default value
 
-and to load the environments, 
-
-```php
-$builder->loadEnvironment('env');
-```
-
-For __production environment__, return **NOTHING**, or empty array. Or, simply, do not create an env-file at all. 
-
-
-
-### `configure` mehtod
-
-To setup for environment other than production, create a directory under `$config_dir` with the environment name, and create a configuration file exactly same name as the production. 
-
-```
-+- config/
-   +- setup.php
-   +- local/
-      +- setup.php
-   +- test/
-      +- setup.php
-```
-
-The builder will execute **only** one configuration file for the current environment. 
-
-#### to read production config
-
-If the environment specific configuration file requires other script (such as one for the main production), do something like:
-
-```php
-return function(AppBuilder Builder) {
-    // load the main production script. 
-    $builder->execute(dirname(__DIR__).'/script-name'); 
-    // continue configuration.
-    $builder->app->getContainer()->set('some', 'value');
-};
-```
-
-
-More About AppBuilder
--------------------------
-
-### Simple Construction 
-
-`AppBuilder::forge` provides a simpler construction, 
-
-```php
-$builder = AppBuilder::forge(
-    $app_dir,
-    $var_dir, 
-    [
-        'debug'    => true,
-        'env'      => 'local',
-        'env-file' => 'env.php',
-    ]
-);
-```
-
-where you can set an optional array. 
-
-* `debug` for setting debug (i.e. `$builder->debug`),
-* `env` for directly specifying environment,
-* `env-file` for reading environment from the specified file (if `env` is not set). 
-
-The used option can be retrieved by 
-
-```php
-$options = $builder->get('options');
-```
-
-### Builder as Container
-
-The builder has a really simple container functionality:
-
-```php
-$builder->set('key', 'secret');
-if ($builder->has('key')) {
-	$value = $builder->get('key');
-}
-```
-
-It is possible to use the environment file to set secret keys, such as DB pass, and use it in the database configuration. 
-
-
-### Finding the Environment
-
-Check for the current environment using `is` and `isProduction` methods;
-
-```php
-echo $builder->isProduction(); // bool
-echo $builder->isEnv('test'); // bool
-```
-
-You can force the environment by 
-
-```php
-$builder->loadEnvironment(['local', 'test']);
 ```

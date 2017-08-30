@@ -12,7 +12,7 @@
         >
     <testsuites>
         <testsuite name="WScore/Pile Test Suite">
-            <directory>AppBuilder</directory>
+            <directory>Builder</directory>
         </testsuite>
     </testsuites>
     <filter>
