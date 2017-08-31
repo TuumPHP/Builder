@@ -5,10 +5,11 @@ use Dotenv\Dotenv;
 
 class Builder
 {
-    const APP_DIR = 'app-dir';
-    const VAR_DIR = 'var-dir';
-    const DEBUG = 'debug';
-    const ENV_FILE = 'env_file';
+    const APPLICATION = 'app';
+    const APP_DIR     = 'app-dir';
+    const VAR_DIR     = 'var-dir';
+    const DEBUG       = 'debug';
+    const ENV_FILE    = 'env_file';
 
     private $data;
 
@@ -59,6 +60,9 @@ class Builder
 
         /** @noinspection PhpUnusedLocalVariableInspection */
         $builder = $this;
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $app     = $this->getApp();
+        
         /** @noinspection PhpIncludeInspection */
         $returned = include($__file);
         if (is_callable($returned)) {
@@ -113,6 +117,14 @@ class Builder
     }
 
     /**
+     * @return mixed|null
+     */
+    public function getApp()
+    {
+        return $this->get(self::APPLICATION);
+    }
+
+    /**
      * @param string $id
      * @return bool
      */
@@ -128,6 +140,14 @@ class Builder
     public function set($id, $value)
     {
         $this->data[$id] = $value;
+    }
+
+    /**
+     * @param mixed $app
+     */
+    public function setApp($app)
+    {
+        $this->set(self::APPLICATION, $app);
     }
 
     /**
