@@ -12,7 +12,12 @@
         >
     <testsuites>
         <testsuite name="WScore/Pile Test Suite">
-            <directory>AppBuilder</directory>
+            <directory>Builder</directory>
         </testsuite>
     </testsuites>
+    <filter>
+        <whitelist>
+            <directory processUncoveredFilesFromWhitelist="true">../src</directory>
+        </whitelist>
+    </filter>
 </phpunit>

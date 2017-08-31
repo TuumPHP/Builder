@@ -1,12 +1,12 @@
 <?php
 namespace Tuum\Builder;
 
-trait SettingTrait
+trait OptionsTrait
 {
     /**
      * @var array
      */
-    private $settings = [];
+    private $options = [];
 
     /**
      * sets $value as $key in local container.
@@ -18,9 +18,17 @@ trait SettingTrait
      */
     public function set($key, $value)
     {
-        $this->settings[$key] = $value;
+        $this->options[$key] = $value;
 
         return $this;
+    }
+
+    /**
+     * @param array $option
+     */
+    protected function setOptions(array $option)
+    {
+        $this->options = $option;
     }
 
     /**
@@ -33,7 +41,7 @@ trait SettingTrait
      */
     public function get($key, $default = null)
     {
-        return array_key_exists($key, $this->settings) ? $this->settings[$key] : $default;
+        return array_key_exists($key, $this->options) ? $this->options[$key] : $default;
     }
 
     /**
@@ -43,6 +51,14 @@ trait SettingTrait
      */
     public function has($key)
     {
-        return array_key_exists($key, $this->settings);
+        return array_key_exists($key, $this->options);
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
     }
 }
