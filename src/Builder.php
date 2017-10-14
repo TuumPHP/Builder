@@ -11,7 +11,10 @@ class Builder
     const DEBUG       = 'debug';
     const ENV_FILE    = 'env_file';
 
-    private $data;
+    /**
+     * @var array|int
+     */
+    private $data = [];
 
     /**
      * Builder constructor.
@@ -155,7 +158,7 @@ class Builder
      */
     public function isDebug()
     {
-        return (bool)$this->data[self::DEBUG];
+        return (bool)$this->get(self::DEBUG);
     }
 
     /**
