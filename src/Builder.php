@@ -5,11 +5,10 @@ use Dotenv\Dotenv;
 
 class Builder
 {
-    const APPLICATION = 'app';
     const APP_DIR     = 'app-dir';
     const VAR_DIR     = 'var-dir';
+    const ENV_DIR     = 'env-dir';
     const DEBUG       = 'debug';
-    const ENV_FILE    = 'env_file';
 
     /**
      * @var array|int
@@ -101,7 +100,7 @@ class Builder
      */
     public function loadEnv($env_name = '.env')
     {
-        $env_dir = $this->get(self::ENV_FILE) ?: $this->getVarDir();
+        $env_dir = $this->get(self::ENV_DIR) ?: $this->getVarDir();
         if (file_exists($env_dir . '/' . $env_name)) {
             $env     = new Dotenv($env_dir, $env_name);
             $env->load();
