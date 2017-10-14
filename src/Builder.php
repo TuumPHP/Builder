@@ -43,11 +43,11 @@ class Builder
      */
     public static function forge($app_dir, $var_dir, $debug = true, $data = [])
     {
-        $data = [
+        $data = array_merge([
                 self::APP_DIR => $app_dir,
                 self::VAR_DIR => $var_dir,
                 self::DEBUG   => $debug,
-            ] + $data;
+            ], $data);
 
         return new self($data);
     }
