@@ -17,6 +17,11 @@ class Builder
     private $data = [];
 
     /**
+     * @var mixed
+     */
+    private $app;
+
+    /**
      * Builder constructor.
      *
      * @param array $data
@@ -120,14 +125,6 @@ class Builder
     }
 
     /**
-     * @return mixed|null
-     */
-    public function getApp()
-    {
-        return $this->get(self::APPLICATION);
-    }
-
-    /**
      * @param string $id
      * @return bool
      */
@@ -150,7 +147,15 @@ class Builder
      */
     public function setApp($app)
     {
-        $this->set(self::APPLICATION, $app);
+        $this->app = $app;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getApp()
+    {
+        return $this->app;
     }
 
     /**
@@ -175,5 +180,13 @@ class Builder
     public function getVarDir()
     {
         return rtrim($this->data[self::VAR_DIR], DIRECTORY_SEPARATOR);
+    }
+
+    /**
+     * @return int
+     */
+    public function getAll()
+    {
+        return $this->data;
     }
 }
