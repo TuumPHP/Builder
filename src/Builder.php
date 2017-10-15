@@ -80,15 +80,15 @@ class Builder
     }
 
     /**
-     * @param string $file
+     * @param string $filename
      * @return bool|mixed
      */
-    public function load($file)
+    public function load($filename)
     {
-        $file = $this->getAppDir() . DIRECTORY_SEPARATOR . $file;
+        $file = $this->getAppDir() . DIRECTORY_SEPARATOR . $filename;
         $returned = $this->execute($file);
-        if (!isset($this->data[$file])) {
-            $this->data[$file] = $returned;
+        if (!isset($this->data[$filename])) {
+            $this->data[$filename] = $returned;
         }
         
         return $returned;
