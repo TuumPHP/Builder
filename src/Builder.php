@@ -72,7 +72,7 @@ class Builder
         
         /** @noinspection PhpIncludeInspection */
         $returned = include($__file);
-        if (is_callable($returned)) {
+        if ($returned instanceof \Closure) {
             $returned = call_user_func($returned, $this);
         }
 
