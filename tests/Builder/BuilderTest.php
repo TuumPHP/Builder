@@ -51,7 +51,7 @@ class BuilderTest  extends \PHPUnit_Framework_TestCase
     {
         $builder = $this->builder;
         $settings = $builder->load('closure');
-        $this->assertEquals('closure-test', $settings);
+        $this->assertEquals('closure-test', $settings($builder));
         $this->assertEquals('tested', $builder->get('load-closure'));
     }
     

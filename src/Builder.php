@@ -71,12 +71,7 @@ class Builder
         $app     = $this->getApp();
         
         /** @noinspection PhpIncludeInspection */
-        $returned = include($__file);
-        if ($returned instanceof \Closure) {
-            $returned = call_user_func($returned, $this);
-        }
-
-        return $returned;
+        return include($__file);
     }
 
     /**
