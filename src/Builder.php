@@ -3,8 +3,10 @@ namespace Tuum\Builder;
 
 use Dotenv\Dotenv;
 
-class Builder
+class Builder implements \ArrayAccess
 {
+    use DataTrait;
+    
     const APP_DIR     = 'app-dir';
     const VAR_DIR     = 'var-dir';
     const ENV_DIR     = 'env-dir';
@@ -12,11 +14,6 @@ class Builder
 
     const ENV_KEY     = 'env-key';
     const PRODUCTION  = 'prod';
-
-    /**
-     * @var array|int
-     */
-    private $data = [];
 
     /**
      * @var mixed
@@ -30,12 +27,12 @@ class Builder
      */
     public function __construct(array $data)
     {
-        $this->data = $data + [
+        $this->setData(array_merge([
                 self::APP_DIR => __DIR__,
                 self::VAR_DIR => __DIR__,
                 self::DEBUG   => false,
                 self::ENV_KEY => 'APP_ENV',
-            ];
+            ], $data));
     }
 
     /**
@@ -86,8 +83,8 @@ class Builder
     {
         $file = $this->getAppDir() . DIRECTORY_SEPARATOR . $filename;
         $returned = $this->execute($file);
-        if (!isset($this->data[$filename])) {
-            $this->data[$filename] = $returned;
+        if (!$this->has($filename)) {
+            $this->set($filename, $returned);
         }
         
         return $returned;
@@ -106,38 +103,6 @@ class Builder
             return true;
         }
         return false;
-    }
-
-    /**
-     * @param string     $id
-     * @param mixed|null $default
-     * @return mixed|null
-     */
-    public function get($id, $default = null)
-    {
-        if ($found = getenv($id)) {
-            return $found;
-        }
-
-        return array_key_exists($id, $this->data) ? $this->data[$id] : $default;
-    }
-
-    /**
-     * @param string $id
-     * @return bool
-     */
-    public function has($id)
-    {
-        return array_key_exists($id, $this->data);
-    }
-
-    /**
-     * @param string $id
-     * @param mixed  $value
-     */
-    public function set($id, $value)
-    {
-        $this->data[$id] = $value;
     }
 
     /**
@@ -203,13 +168,5 @@ class Builder
     public function getVarDir()
     {
         return rtrim($this->get(self::VAR_DIR), DIRECTORY_SEPARATOR);
-    }
-
-    /**
-     * @return int
-     */
-    public function getAll()
-    {
-        return $this->data;
     }
 }

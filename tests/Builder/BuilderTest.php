@@ -94,4 +94,15 @@ class BuilderTest  extends \PHPUnit_Framework_TestCase
         $this->assertTrue($builder->isEnv('test'));
         $this->assertFalse($builder->isEnvProd());
     }
+    
+    public function test_builder_as_array()
+    {
+        $builder = new Builder([]);
+        $this->assertFalse(isset($builder['none']));
+        $builder['test'] = 'tested';
+        $this->assertTrue(isset($builder['test']));
+        $this->assertEquals('tested', $builder['test']);
+        unset($builder['test']);
+        $this->assertFalse($builder->has('test'));
+    }
 }
