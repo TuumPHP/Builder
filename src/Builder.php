@@ -10,6 +10,9 @@ class Builder
     const ENV_DIR     = 'env-dir';
     const DEBUG       = 'debug';
 
+    const ENV_KEY     = 'env-key';
+    const PRODUCTION  = 'prod';
+
     /**
      * @var array|int
      */
@@ -30,7 +33,8 @@ class Builder
         $this->data = $data + [
                 self::APP_DIR => __DIR__,
                 self::VAR_DIR => __DIR__,
-                self::DEBUG   => true,
+                self::DEBUG   => false,
+                self::ENV_KEY => 'APP_ENV',
             ];
     }
 
@@ -161,11 +165,36 @@ class Builder
     }
 
     /**
+     * @param string $environment
+     * @return bool
+     */
+    public function isEnv($environment)
+    {
+        $key  = $this->get(self::ENV_KEY);
+        $env  = $this->get($key);
+        if ($env === $environment) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnvProd()
+    {
+        if (!$this->get(self::ENV_KEY)) {
+            return true;
+        }
+        return $this->isEnv($this->get(self::PRODUCTION));
+    }
+    
+    /**
      * @return string
      */
     public function getAppDir()
     {
-        return rtrim($this->data[self::APP_DIR], DIRECTORY_SEPARATOR);
+        return rtrim($this->get(self::APP_DIR), DIRECTORY_SEPARATOR);
     }
 
     /**
@@ -173,7 +202,7 @@ class Builder
      */
     public function getVarDir()
     {
-        return rtrim($this->data[self::VAR_DIR], DIRECTORY_SEPARATOR);
+        return rtrim($this->get(self::VAR_DIR), DIRECTORY_SEPARATOR);
     }
 
     /**

@@ -16,6 +16,8 @@ class BuilderTest  extends \PHPUnit_Framework_TestCase
     {
         $_ENV = [];
         unset($_SERVER['ENV_TEST']);
+        unset($_SERVER['ENV_FILE']);
+        unset($_SERVER['APP_ENV']);
         
         parent::setUp();
         $this->builder = Builder::forge(__DIR__ . '/app', __DIR__ . '/var', true);
@@ -75,5 +77,21 @@ class BuilderTest  extends \PHPUnit_Framework_TestCase
     {
         $builder = Builder::forge(__DIR__ . '/app', __DIR__ . '/empty', true);
         $this->assertFalse($builder->loadEnv());
+    }
+
+    public function test_env_to_prod()
+    {
+        $builder = Builder::forge(__DIR__ . '/app', __DIR__ . '/var', true);
+        $builder->loadEnv();
+        $this->assertFalse($builder->isEnv('test'));
+        $this->assertTrue($builder->isEnvProd());
+    }
+    
+    public function test_env_to_test()
+    {
+        $builder = Builder::forge(__DIR__ . '/app', __DIR__ . '/var', true);
+        $builder->loadEnv('.env.test');
+        $this->assertTrue($builder->isEnv('test'));
+        $this->assertFalse($builder->isEnvProd());
     }
 }
