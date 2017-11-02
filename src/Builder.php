@@ -130,13 +130,21 @@ class Builder implements \ArrayAccess
     }
 
     /**
+     * @return string|null
+     */
+    public function getEnv()
+    {
+        $key = $this->get(self::ENV_KEY);
+        return $this->get($key);
+    }
+
+    /**
      * @param string $environment
      * @return bool
      */
     public function isEnv($environment)
     {
-        $key  = $this->get(self::ENV_KEY);
-        $env  = $this->get($key);
+        $env  = $this->getEnv();
         if ($env === $environment) {
             return true;
         }
@@ -148,10 +156,11 @@ class Builder implements \ArrayAccess
      */
     public function isEnvProd()
     {
-        if (!$this->get(self::ENV_KEY)) {
+        $env  = $this->getEnv();
+        if (!$env) {
             return true;
         }
-        return $this->isEnv($this->get(self::PRODUCTION));
+        return $env === self::PRODUCTION;
     }
     
     /**
