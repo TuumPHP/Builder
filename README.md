@@ -11,12 +11,38 @@ MIT License
 
 PSR-1, PSR-2, and PSR-4.
 
+### Installation
+
+```sh
+composer require "tuum/builder: ^1.0.0"
+```
+
+### Sample Code
+
+```php
+use WScore\Builder\Builder;
+
+$builder  = Builder::forge(
+    __DIR__ . '/config,  // app directory
+    __DIR__ . '/var',    // var directory
+    true                 // debug
+);
+$builder->loadEnv();
+$builder->load('setup');
+$builder->load('routes');
+if ($builder->isEnv('local')) {
+    $builder->load('extra.local');
+}
+
+$app = $builder->getApp(); // <- must set an app using setApp()!
+```
+
 Basic Usage
 -----------
 
 ### Directory Structure
 
-This component assumes there are two directories to build an application: 
+`Tuum/Builder` assumes there are two directories to build an application: 
 
 *	`APP_DIR`: directory for application settings, and 
 * 	`VAR_DIR`: directory for files not under version control. 
@@ -47,70 +73,75 @@ $builder  = new Builder([
 ]);
 ```
 
-Or, maybe use `forge` method, 
+Or, simply use `forge` method as shown in the __Sample Code Section__. 
 
-```php
-use WScore\Builder\Builder;
-
-$builder  = Builder::forge(
-    __DIR__ . '/config,  // app directory
-    __DIR__ . '/var',    // var directory
-    true                 // debug
-);
-```
 
 ### Loading PHP File
 
-To load configuration files under the `APP_DIR`:
+To load configuration files under the `APP_DIR`, use `load` method as;
 
 ```php
 $builder->load('setup');
-$builder->load('closure');
 ```
 
 In `setup.php` file, set up the application, such as:
 
 ```php
 /** @var Tuum\Builder\Builder $builder */
-$builder->set('some', 'value'); // set value
+$builder->set(Builder::APP_KEY, 'ENV');  // set value
+$builder->setApp(new YourApp()); // set your application
 
-return ['settings' => 'done'];
+return [
+    'db-name' => $builder->get('DB_NAME', 'demo'),
+]; // may return some value
 ```
 
-The $builder remembers whatever returned from a configuration file 
-as its load name (i.e. $builder->has('setup');).
+* The builder has `has`, `get`, and `set` methods as expected.
+* There are `setApp()` and `getApp()` methods to store your application. 
+* The returned value from the PHP files are stored in the builder 
+using its load name, which can be accessed by: `$builder->get('setup');`.
 
-### Loading Closure
 
-PHP file can return a callable to load into $builder, such as 
+### Getting Values
+
+The `get` method tries to get value from:
+ 
+1. environment value,
+2. `$builder`'s internal value
+3. default value.
 
 ```php
-use WScore\Builder\Builder;
-
-return function(Builder Builder) {
-    $builder->set('more', 'value');
-};
+$builder->get('DB_NAME', 'my_db');
 ```
-
-
-
 
 ### Environment File
 
 Loads `.env` file using [vlucas's dotenv](https://github.com/vlucas/phpdotenv) component.
 The default location of the `.env` file is at `VAR_DIR`. 
 
-```php
-$builder->loadEnv();
+The `.env` file contains `APP_ENV` key to specify the environment as such;
+
+```sh
+APP_ENV = local
 ```
 
-### Getting Values
-
-`get` gets environment value, or from `$builder`'s internal value, or default value. 
+Then, you can access the environment as,
 
 ```php
-$builder->get('GET_FROM_ENV'); // from .env file
-$builder->get('setup');        // from internal value
-$builder->get('bad', 'none');  // from default value
+$builder->loadEnv(); // load the .env file
 
+$builder->isEnv('local');
+$builder->isEnvProd();
+$env = $builder->getEnv();
 ```
+
+The builder considers the environment as `prod` 
+if no environment is set, or no environment file to load. 
+
+To change the key string used to specify the environment, 
+set `Builder::APP_KEY` value to the new key name, such as;
+
+```php
+$builder->set(Builder::APP_KEY, 'ENV');  // set value
+```
+
