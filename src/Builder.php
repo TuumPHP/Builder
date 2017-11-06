@@ -12,8 +12,9 @@ class Builder implements \ArrayAccess
     const ENV_DIR     = 'env-dir';
     const DEBUG       = 'debug';
 
-    const ENV_KEY     = 'env-key';
-    const PRODUCTION  = 'prod';
+    const ENV_KEY               = 'env-key';
+    const PROD_KEY              = 'prod-key';
+    const ALLOW_DOTENV_OVERLOAD = 'allow-dotenv-overload';
 
     /**
      * @var mixed
@@ -32,6 +33,7 @@ class Builder implements \ArrayAccess
                 self::VAR_DIR => __DIR__,
                 self::DEBUG   => false,
                 self::ENV_KEY => 'APP_ENV',
+                self::PROD_KEY => 'prod',
             ], $data));
     }
 
@@ -96,9 +98,12 @@ class Builder implements \ArrayAccess
      */
     public function loadEnv($env_name = '.env')
     {
-        $env_dir = $this->get(self::ENV_DIR) ?: $this->getVarDir();
-        if (file_exists($env_dir . '/' . $env_name)) {
-            $env     = new Dotenv($env_dir, $env_name);
+        $env_file = $this->getVarDir() . '/' . $env_name;
+        if (file_exists($env_file)) {
+            $env     = new Dotenv($this->getVarDir(), $env_name);
+            if ($this->get(self::ALLOW_DOTENV_OVERLOAD)) {
+                $env->overload();
+            }
             $env->load();
             return true;
         }
@@ -160,7 +165,8 @@ class Builder implements \ArrayAccess
         if (!$env) {
             return true;
         }
-        return $env === self::PRODUCTION;
+        $prod  = $this->get(self::PROD_KEY);
+        return $env === $prod;
     }
     
     /**

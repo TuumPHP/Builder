@@ -18,9 +18,15 @@ class BuilderTest  extends \PHPUnit_Framework_TestCase
         unset($_SERVER['ENV_TEST']);
         unset($_SERVER['ENV_FILE']);
         unset($_SERVER['APP_ENV']);
+        unset($_SERVER['ENVIRONMENT']);
         
         parent::setUp();
-        $this->builder = Builder::forge(__DIR__ . '/app', __DIR__ . '/var', true);
+        $this->builder = Builder::forge(
+            __DIR__ . '/app', 
+            __DIR__ . '/var', 
+            true, [
+                Builder::ALLOW_DOTENV_OVERLOAD => true,
+            ]);
     }
     
     public function test_debug()
@@ -56,7 +62,7 @@ class BuilderTest  extends \PHPUnit_Framework_TestCase
         $this->assertEquals('closure-test', $settings($builder));
         $this->assertEquals('tested', $builder->get('load-closure'));
     }
-    
+
     public function test_env()
     {
         $builder = $this->builder;
@@ -75,13 +81,16 @@ class BuilderTest  extends \PHPUnit_Framework_TestCase
     
     public function test_no_env()
     {
+        $builder = $this->builder;
+        $this->assertFalse($builder->loadEnv('.env.no-such'));
+        
         $builder = Builder::forge(__DIR__ . '/app', __DIR__ . '/empty', true);
         $this->assertFalse($builder->loadEnv());
     }
 
     public function test_env_to_prod()
     {
-        $builder = Builder::forge(__DIR__ . '/app', __DIR__ . '/var', true);
+        $builder = $this->builder;
         $builder->loadEnv();
         $this->assertFalse($builder->isEnv('test'));
         $this->assertTrue($builder->isEnvProd());
@@ -89,7 +98,7 @@ class BuilderTest  extends \PHPUnit_Framework_TestCase
     
     public function test_env_to_test()
     {
-        $builder = Builder::forge(__DIR__ . '/app', __DIR__ . '/var', true);
+        $builder = $this->builder;
         $builder->loadEnv('.env.test');
         $this->assertTrue($builder->isEnv('test'));
         $this->assertFalse($builder->isEnvProd());
@@ -108,10 +117,19 @@ class BuilderTest  extends \PHPUnit_Framework_TestCase
 
     public function test_env_key_to_environment()
     {
-        $builder = Builder::forge(__DIR__ . '/app', __DIR__ . '/var', true);
+        $builder = $this->builder;
         $builder->set(Builder::ENV_KEY, 'ENVIRONMENT');
         $builder->loadEnv('.env.environment');
         $this->assertTrue($builder->isEnv('testEnvKey'));
         $this->assertFalse($builder->isEnvProd());
+    }
+
+    public function test_prod_key()
+    {
+        $builder = $this->builder;
+        $builder->set(Builder::PROD_KEY, 'production');
+        $builder->loadEnv('.env.production');
+        $this->assertTrue($builder->isEnv('production'));
+        $this->assertTrue($builder->isEnvProd());
     }
 }
