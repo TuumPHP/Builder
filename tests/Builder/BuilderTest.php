@@ -105,4 +105,13 @@ class BuilderTest  extends \PHPUnit_Framework_TestCase
         unset($builder['test']);
         $this->assertFalse($builder->has('test'));
     }
+
+    public function test_env_key_to_environment()
+    {
+        $builder = Builder::forge(__DIR__ . '/app', __DIR__ . '/var', true);
+        $builder->set(Builder::ENV_KEY, 'ENVIRONMENT');
+        $builder->loadEnv('.env.environment');
+        $this->assertTrue($builder->isEnv('testEnvKey'));
+        $this->assertFalse($builder->isEnvProd());
+    }
 }
